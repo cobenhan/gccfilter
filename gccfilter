@@ -393,12 +393,11 @@ sub parse_with_clause {
     \%data;
 }
 
-my @output = qx/LANG=C 2>&1 $command/;
+my @output = qx/$command 2>&1/;
 
-# main parser
 for (@output){
     # things like "In file included from ..."
-    if (/^([\w\s]+from) ([^:]+):(\d+)(:|,)$/){
+    if (/^([\w\s]+from) ((?:[^:]+:\\[^:]+)|(?:[^:]+:\/[^:]+)|(?:[^:]+)):(\d+)(:|,)$/){
         %data = (
             mesg => $1,
             file => $2,
@@ -406,7 +405,7 @@ for (@output){
             eoli => $4,
             ordr => 2
         );
-    } elsif (/^([^:]+):(?:((?:\d+:)?\d+): )?(?:(error|warning|note): )?(.+)$/) {
+    } elsif (/^((?:[^:]+:\\[^:]+)|(?:[^:]+:\/[^:]+)|(?:[^:]+)):(?:((?:\d+:)?\d+): )?(?:(error|warning|note): )?(.+)$/) {
         %data = (
             ordr => 1,
             file => $1,
